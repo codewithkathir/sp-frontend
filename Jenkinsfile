@@ -6,16 +6,17 @@ pipeline {
     }
 
     stages {
-        stage('Clean') {
-            steps {
-                sh 'rm -rf $PROJECT_DIR/*'
-            }
-        }
 
-        stage('Clone') {
+        stage('Setup Repo') {
             steps {
                 sh '''
-                git clone https://github.com/codewithkathir/sp-frontend.git $PROJECT_DIR
+                if [ ! -d "$PROJECT_DIR/.git" ]; then
+                    git clone https://github.com/codewithkathir/sp-frontend.git $PROJECT_DIR
+                else
+                    cd $PROJECT_DIR
+                    git reset --hard
+                    git pull origin main
+                fi
                 '''
             }
         }
@@ -38,7 +39,7 @@ pipeline {
             }
         }
 
-        stage('Restart Nginx') {
+        stage('Reload Nginx') {
             steps {
                 sh 'sudo systemctl reload nginx'
             }
